@@ -206,9 +206,12 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 			}
 
 		} else if (e.getSource() == jMenuItemSave) {
-			// TODO save
+			GameWindow.getGameGrid().save("testSave.gameoflife");
 		} else if (e.getSource() == jMenuItemLoad) {
-			// TODO load
+//			GameWindow.setGameGrid("testSave.gameoflife");
+			Main.gw.setGameGrid("testSave.gameoflife");
+			// TODO don't works (because of statics ?)
+			Main.repaint();
 		} else if (e.getSource() == jMenuItemAbout) {
 			// TODO about
 		} else if (e.getSource() == jMenuItemRules) {

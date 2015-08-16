@@ -7,6 +7,7 @@ public class Patterns {
 	public static Pattern livingCell = new Pattern(new int[][]{{1}});
 	public static Pattern deadCell = new Pattern(new int[][]{{0}});
 
+
 	/* STILL LIFES */
 	public static Pattern block = new Pattern(new int[][]{
 			{1, 1},

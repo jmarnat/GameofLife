@@ -1,7 +1,7 @@
 package gameoflife;
 
 public class Main {
-	private static GameWindow gw;
+	public static GameWindow gw;
 
 	// TODO PUSH ??
 
@@ -14,4 +14,3 @@ public class Main {
 		gw.repaint();
 	}
 }
-

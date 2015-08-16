@@ -5,31 +5,33 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.*;
 
 /**
  * Created by Josselin MARNAT on 06/08/15.
  */
-public class GameGrid extends JPanel {
+public class GameGrid extends JPanel implements Serializable {
+	// TODO ADD SERIAL VERSION ID
+	private static final long serialVersionUID = -3117397221194546741L;
 	public static int DEAD = 0, ALIVE = 1;
 	public static int NOW = 0, THEN = 1;
 	private static int width, height;
 	private static int step;
 	private static int[][][] stateGrids;
+	private static Pattern pattern = Patterns.beehive;
 	private int pi, pj;
 	private int zoom; // pixels-size of a square
 	private boolean showPhantom = true;
 
-	private static Pattern pattern = Patterns.beehive;
-
 	/**
 	 * Constructor of the "physical" game grid.
 	 *
-	 * @param width of the grid
+	 * @param width  of the grid
 	 * @param height of the grid
 	 */
 	GameGrid(final int height, final int width, int originalZoom) {
-		this.width = width;
-		this.height = height;
+		GameGrid.width = width;
+		GameGrid.height = height;
 		this.zoom = originalZoom;
 		this.setPreferredSize(new Dimension(zoom * width, zoom * height));
 		stateGrids = new int[height][width][2];
@@ -38,7 +40,7 @@ public class GameGrid extends JPanel {
 				stateGrids[i][j][NOW] = DEAD;
 			}
 		}
-		this.step = 0;
+		step = 0;
 
 
 		this.addMouseMotionListener(new MouseMotionListener() {
@@ -86,7 +88,8 @@ public class GameGrid extends JPanel {
 		});
 		this.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseClicked(MouseEvent e) {}
+			public void mouseClicked(MouseEvent e) {
+			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -97,8 +100,8 @@ public class GameGrid extends JPanel {
 				pj = j;
 				for (i = 0; i < h; i++) {
 					for (j = 0; j < w; j++) {
-						if (pattern.getCell(i,j) == 1) {
-							stateGrids[pi+i][pj+j][NOW] = ALIVE;
+						if (pattern.getCell(i, j) == 1) {
+							stateGrids[pi + i][pj + j][NOW] = ALIVE;
 						}
 					}
 				}
@@ -170,7 +173,6 @@ public class GameGrid extends JPanel {
 	}
 
 
-
 	public static void clear() {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -221,6 +223,39 @@ public class GameGrid extends JPanel {
 		Main.repaint();
 	}
 
+	public static GameGrid open(String fileName) {
+		GameGrid gameGrid = null;
+		// TODO ajouter selection de fichier, et check
+		try {
+			FileInputStream fileInputStream = new FileInputStream(fileName);
+			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+			gameGrid = (GameGrid) objectInputStream.readObject();
+			objectInputStream.close();
+			System.err.println("game restored with success");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return (gameGrid);
+	}
+
+	public void save(String fileName) {
+		ObjectOutputStream objOutStr;
+		try {
+			objOutStr = new ObjectOutputStream(new FileOutputStream(fileName));
+			objOutStr.writeObject(this);
+			objOutStr.flush();
+			objOutStr.close();
+			System.err.println("game saved with success");
+		} catch (FileNotFoundException e) {
+			System.err.println("backup file not found:");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.err.println("backup error:");
+			e.printStackTrace();
+		}
+
+	}
+
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.white);
 		for (int i = 0; i < height; i++) {
@@ -232,15 +267,20 @@ public class GameGrid extends JPanel {
 		}
 
 
-		if (! showPhantom) return;
+		if (!showPhantom) return;
 		g.setColor(Color.gray);
 		int h = pattern.getHeight(), w = pattern.getWidth();
 		for (int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
-				if ((pattern.getCell(i,j) == 1) && (stateNow(pi+i,pj+j) != ALIVE)) {
+				if ((pattern.getCell(i, j) == 1) && (stateNow(pi + i, pj + j) != ALIVE)) {
 					g.fillRect((pj + j) * zoom, (pi + i) * zoom, zoom, zoom);
 				}
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return ("alive : " + nbAlive());
 	}
 }

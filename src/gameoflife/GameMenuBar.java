@@ -21,8 +21,6 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 	private static JRadioButtonMenuItem jRadioButtonMenuItemGlider, jRadioButtonMenuItemLWSS, jRadioButtonMenuItemBSS1, jRadioButtonMenuItemBSS2;
 
 
-	private static JButton jButtonNext, jButtonReset, jButtonBabyBoom;
-
 	public GameMenuBar(int height, int width, int zoom) {
 		this.setPreferredSize(new Dimension(zoom * width, 40));
 
@@ -35,15 +33,19 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jMenuItemQuit.addActionListener(this);
 
 		jMenuItemSave = new JMenuItem("Save...");
+		jMenuItemSave.setEnabled(false);
 		jMenuItemSave.addActionListener(this);
 
 		jMenuItemLoad = new JMenuItem("Load...");
+		jMenuItemLoad.setEnabled(false);
 		jMenuItemLoad.addActionListener(this);
 
 		jMenuItemAbout = new JMenuItem("About");
+		jMenuItemAbout.setEnabled(false);
 		jMenuItemAbout.addActionListener(this);
 
 		jMenuItemRules = new JMenuItem("Rules");
+		jMenuItemRules.setEnabled(false);
 		jMenuItemRules.addActionListener(this);
 
 		/* MENUS : PATTERNS */
@@ -151,15 +153,7 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jMenuTransformations.add(jMenuItemFlipVertical);
 
 
-		/* "PLAY" BUTTONS*/
-		jButtonNext = new JButton(TranslationHash.getTranslation("Next"));
-		jButtonNext.addActionListener(this);
 
-		jButtonReset = new JButton(TranslationHash.getTranslation("Reset"));
-		jButtonReset.addActionListener(this);
-
-		jButtonBabyBoom = new JButton(TranslationHash.getTranslation("Baby Boom"));
-		jButtonBabyBoom.addActionListener(this);
 
 		jLabelNbAlive = new JLabel(TranslationHash.getTranslation("People alive:") + " " + Integer.toString(GameGrid.nbAlive()) + " ");
 		jLabelStep = new JLabel("| " + TranslationHash.getTranslation("Generation:") + " " + Integer.toString(GameGrid.step()) + " ");
@@ -169,10 +163,6 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		this.add(jMenuPatterns);
 		this.add(jMenuTransformations);
 
-		this.add(Box.createGlue());
-		this.add(jButtonNext);
-		this.add(jButtonReset);
-		this.add(jButtonBabyBoom);
 		this.add(Box.createGlue());
 		this.add(jLabelNbAlive);
 		this.add(jLabelStep);
@@ -206,29 +196,16 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 			}
 
 		} else if (e.getSource() == jMenuItemSave) {
-			GameWindow.getGameGrid().save("testSave.gameoflife");
+			Main.save("testSave.gameoflife");
 		} else if (e.getSource() == jMenuItemLoad) {
-//			GameWindow.setGameGrid("testSave.gameoflife");
-			Main.gw.setGameGrid("testSave.gameoflife");
+			Main.setGameGrid("testSave.gameoflife");
+			// Main.gw.setGameGrid("testSave.gameoflife");
 			// TODO don't works (because of statics ?)
 			Main.repaint();
 		} else if (e.getSource() == jMenuItemAbout) {
 			// TODO about
 		} else if (e.getSource() == jMenuItemRules) {
 			// TODO rules
-		}
-
-		/* BUTTONS */
-		else if (e.getSource() == jButtonNext) {
-			GameGrid.next();
-			Main.repaint();
-		} else if (e.getSource() == jButtonReset) {
-			GameGrid.clear();
-			Main.repaint();
-		} else if (e.getSource() == jButtonBabyBoom) {
-			GameGrid.clear();
-			GameGrid.babyBoom();
-			Main.repaint();
 		}
 
 		/* MENUS : PATTERNS */

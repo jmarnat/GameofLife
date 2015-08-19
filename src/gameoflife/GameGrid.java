@@ -5,20 +5,21 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 /**
  * Created by Josselin MARNAT on 06/08/15.
  */
 public class GameGrid extends JPanel implements Serializable {
-	// TODO ADD SERIAL VERSION ID
-	private static final long serialVersionUID = -3117397221194546741L;
+	private static final long serialVersionUID = 1L;
 	public static int DEAD = 0, ALIVE = 1;
 	public static int NOW = 0, THEN = 1;
 	private static int width, height;
 	private static int step;
 	private static int[][][] stateGrids;
-	private static Pattern pattern = Patterns.beehive;
+	private static Pattern pattern = Patterns.livingCell;
 	private int pi, pj;
 	private int zoom; // pixels-size of a square
 	private boolean showPhantom = true;
@@ -33,13 +34,11 @@ public class GameGrid extends JPanel implements Serializable {
 		GameGrid.width = width;
 		GameGrid.height = height;
 		this.zoom = originalZoom;
-		this.setPreferredSize(new Dimension(zoom * width, zoom * height));
+
 		stateGrids = new int[height][width][2];
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
+		for (int i = 0; i < height; i++)
+			for (int j = 0; j < width; j++)
 				stateGrids[i][j][NOW] = DEAD;
-			}
-		}
 		step = 0;
 
 
@@ -57,13 +56,10 @@ public class GameGrid extends JPanel implements Serializable {
 					stateGrids[pi][pj][NOW] = DEAD;
 				} else {
 					int h = pattern.getHeight(), w = pattern.getWidth();
-					for (i = 0; i < h; i++) {
-						for (j = 0; j < w; j++) {
-							if (pattern.getCell(i, j) == 1) {
+					for (i = 0; i < h; i++)
+						for (j = 0; j < w; j++)
+							if (pattern.getCell(i, j) == 1)
 								stateGrids[pi + i][pj + j][NOW] = ALIVE;
-							}
-						}
-					}
 				}
 
 				GameMenuBar.majNbAlive();
@@ -126,6 +122,8 @@ public class GameGrid extends JPanel implements Serializable {
 				repaint();
 			}
 		});
+
+		this.setPreferredSize(new Dimension(zoom * width, zoom * height));
 	}
 
 	static int stateNow(int x, int y) {
@@ -136,13 +134,10 @@ public class GameGrid extends JPanel implements Serializable {
 
 	private static int nbAlive(int x, int y) {
 		int n = 0;
-		for (int i = -1; i <= 1; i++) {
-			for (int j = -1; j <= 1; j++) {
-				if (!((i == 0) && (j == 0))) {
+		for (int i = -1; i <= 1; i++)
+			for (int j = -1; j <= 1; j++)
+				if (!((i == 0) && (j == 0)))
 					n += ((stateNow(x + i, y + j) == ALIVE) ? 1 : 0);
-				}
-			}
-		}
 		return n;
 	}
 
@@ -162,11 +157,9 @@ public class GameGrid extends JPanel implements Serializable {
 				}
 			}
 		}
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
+		for (int i = 0; i < height; i++)
+			for (int j = 0; j < width; j++)
 				stateGrids[i][j][NOW] = stateGrids[i][j][THEN];
-			}
-		}
 		step++;
 		GameMenuBar.majNbAlive();
 		GameMenuBar.majStep();
@@ -174,11 +167,9 @@ public class GameGrid extends JPanel implements Serializable {
 
 
 	public static void clear() {
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
+		for (int i = 0; i < height; i++)
+			for (int j = 0; j < width; j++)
 				stateGrids[i][j][NOW] = DEAD;
-			}
-		}
 		GameGrid.step = 0;
 		GameMenuBar.majNbAlive();
 		GameMenuBar.majStep();
@@ -199,11 +190,9 @@ public class GameGrid extends JPanel implements Serializable {
 
 	public static int nbAlive() {
 		int nb = 0;
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
+		for (int i = 0; i < height; i++)
+			for (int j = 0; j < width; j++)
 				if (stateGrids[i][j][NOW] == ALIVE) nb++;
-			}
-		}
 		return (nb);
 	}
 
@@ -238,23 +227,7 @@ public class GameGrid extends JPanel implements Serializable {
 		return (gameGrid);
 	}
 
-	public void save(String fileName) {
-		ObjectOutputStream objOutStr;
-		try {
-			objOutStr = new ObjectOutputStream(new FileOutputStream(fileName));
-			objOutStr.writeObject(this);
-			objOutStr.flush();
-			objOutStr.close();
-			System.err.println("game saved with success");
-		} catch (FileNotFoundException e) {
-			System.err.println("backup file not found:");
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.err.println("backup error:");
-			e.printStackTrace();
-		}
 
-	}
 
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.white);
@@ -265,18 +238,14 @@ public class GameGrid extends JPanel implements Serializable {
 				g.fillRect(j * zoom, i * zoom, zoom, zoom);
 			}
 		}
-
-
 		if (!showPhantom) return;
 		g.setColor(Color.gray);
 		int h = pattern.getHeight(), w = pattern.getWidth();
-		for (int i = 0; i < h; i++) {
-			for (int j = 0; j < w; j++) {
-				if ((pattern.getCell(i, j) == 1) && (stateNow(pi + i, pj + j) != ALIVE)) {
+
+		for (int i = 0; i < h; i++)
+			for (int j = 0; j < w; j++)
+				if ((pattern.getCell(i, j) == 1) && (stateNow(pi + i, pj + j) != ALIVE))
 					g.fillRect((pj + j) * zoom, (pi + i) * zoom, zoom, zoom);
-				}
-			}
-		}
 	}
 
 	@Override

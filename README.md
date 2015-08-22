@@ -1,4 +1,6 @@
 # Game of Life
+![logo](src/gameoflife/res/logo.png)
+
 © All rights reserved to Josselin MARNAT - 2015
 
 ## Description

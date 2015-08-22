@@ -31,6 +31,8 @@ public class GameGrid extends JPanel implements Serializable {
 	private boolean recordingGif = false;
 	private int pi, pj;
 	private boolean showPhantom = true;
+	private boolean theoricMode = true;
+	private Rule rule = Rules.CLASSIC;
 
 	/**
 	 * Constructor of the "physical" game grid.
@@ -138,23 +140,9 @@ public class GameGrid extends JPanel implements Serializable {
 		this.setPreferredSize(new Dimension(zoom * width, zoom * height));
 	}
 
-	static boolean stateOld(int x, int y) {
-		if ((x < 0) || (x >= height) || (y < 0) || (y >= width)) return false;
-		else return stateGrids[x][y][OLD];
-	}
-
 	static boolean stateNew(int x, int y) {
 		if ((x < 0) || (x >= height) || (y < 0) || (y >= width)) return false;
 		else return stateGrids[x][y][NEW];
-	}
-
-	private static int nbAlive(int x, int y) {
-		int n = 0;
-		for (int i = -1; i <= 1; i++)
-			for (int j = -1; j <= 1; j++)
-				if (!((i == 0) && (j == 0)))
-					n += ((stateOld(x + i, y + j)) ? 1 : 0);
-		return n;
 	}
 
 	public static void clear() {
@@ -218,6 +206,24 @@ public class GameGrid extends JPanel implements Serializable {
 		return max;
 	}
 
+	private boolean stateOld(int x, int y) {
+		if (theoricMode) {
+			return stateGrids[(x + height) % height][(y + width) % width][OLD];
+		} else {
+			if ((x < 0) || (x >= height) || (y < 0) || (y >= width)) return false;
+			else return stateGrids[x][y][OLD];
+		}
+	}
+
+	private int nbAlive(int x, int y) {
+		int n = 0;
+		for (int i = -1; i <= 1; i++)
+			for (int j = -1; j <= 1; j++)
+				if (!((i == 0) && (j == 0)))
+					n += ((stateOld(x + i, y + j)) ? 1 : 0);
+		return n;
+	}
+
 	public void next() {
 		int nbAlive = nbAlive();
 		statistics.add(nbAlive);
@@ -229,16 +235,32 @@ public class GameGrid extends JPanel implements Serializable {
 
 		int n;
 		boolean s;
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				n = nbAlive(i, j);
-				s = stateOld(i, j);
-				if (s == ALIVE) {
-					if (GameOfLife.rule.getS(n - 1)) stateGrids[i][j][NEW] = ALIVE;
-					else stateGrids[i][j][NEW] = DEAD;
-				} else { /* if it's DEAD... */
-					if (GameOfLife.rule.getB(n - 1)) stateGrids[i][j][NEW] = ALIVE; /* reborn */
-					else stateGrids[i][j][NEW] = DEAD; /* keep DEAD */
+		if (theoricMode) {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					n = nbAlive(i, j);
+					s = stateOld(i, j);
+					if (s == ALIVE) {
+						if (this.rule.getS(n - 1)) stateGrids[i % height][j % width][NEW] = ALIVE;
+						else stateGrids[i % height][j % width][NEW] = DEAD;
+					} else { /* if it's DEAD... */
+						if (this.rule.getB(n - 1)) stateGrids[i % height][j % width][NEW] = ALIVE; /* reborn */
+						else stateGrids[i % height][j % width][NEW] = DEAD; /* keep DEAD */
+					}
+				}
+			}
+		} else {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					n = nbAlive(i, j);
+					s = stateOld(i, j);
+					if (s == ALIVE) {
+						if (this.rule.getS(n - 1)) stateGrids[i][j][NEW] = ALIVE;
+						else stateGrids[i][j][NEW] = DEAD;
+					} else { /* if it's DEAD... */
+						if (this.rule.getB(n - 1)) stateGrids[i][j][NEW] = ALIVE; /* reborn */
+						else stateGrids[i][j][NEW] = DEAD; /* keep DEAD */
+					}
 				}
 			}
 		}
@@ -349,5 +371,10 @@ public class GameGrid extends JPanel implements Serializable {
 
 	public boolean isRecordingGif() {
 		return this.recordingGif;
+	}
+
+	public void changeRule(Rule rule) {
+		this.rule = rule;
+		System.err.println("Rule -> " + rule.getName());
 	}
 }

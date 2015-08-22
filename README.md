@@ -24,7 +24,8 @@ This program is written in Java, and totally open-source.
 * statistics viewer of population alive over time;
 
 ## TODO-list
-* **!! RULE SELECTION !!**
+* theoretical mode activation
+* rule personalization
 * complete the french translation;
 * add an setting-window to change :
 	* colors;

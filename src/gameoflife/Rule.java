@@ -5,14 +5,17 @@ package gameoflife;
  */
 public class Rule {
 	private boolean[] B, S;
+	private String name;
 
 	public Rule() {
 		B = new boolean[8];
 		S = new boolean[8];
 		for (int i = 0; i < 8; i++) B[i] = S[i] = false;
+		name = "-";
 	}
 
-	public Rule(boolean[] B1, boolean[] S1) {
+	public Rule(String name, boolean[] B1, boolean[] S1) {
+		this.name = name;
 		B = B1;
 		S = S1;
 	}
@@ -33,4 +36,7 @@ public class Rule {
 		S[i] = b;
 	}
 
+	public String getName() {
+		return this.name;
+	}
 }

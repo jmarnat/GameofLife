@@ -15,7 +15,9 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 	private static JMenu jMenuGameOfLife, jMenuPatterns, jMenuTransformations;
 	private static JMenu jMenuExport;
 	private static JMenuItem jMenuItemToJpg, jMenuItemRecordingGif;
-	private static JMenuItem jMenuItemQuit, jMenuItemAbout, jMenuItemRules;
+	private static JMenuItem jMenuItemQuit, jMenuItemAbout, jMenuItemHelp;
+	private static JMenu jMenuRules;
+	private static JRadioButtonMenuItem jMenuItemClassic, jMenuItemDayAndLight, jMenuItemHighlife, jMenuItemMarnat, jMenuItemGrando;
 	private static JMenu jMenuStillLifes, jMenuOscillators, jMenuSpaceships;
 	private static JMenuItem jMenuItemRotateRight, jMenuItemRotateLeft, jMenuItemFlipHorizontal, jMenuItemFlipVertical;
 	private static JCheckBoxMenuItem jMenuItemStatistics, jCheckBoxMenuItemShowColors;
@@ -40,8 +42,42 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jMenuItemAbout = new JMenuItem("About");
 		jMenuItemAbout.addActionListener(this);
 
-		jMenuItemRules = new JMenuItem("Rules");
-		jMenuItemRules.addActionListener(this);
+		jMenuItemHelp = new JMenuItem("Help");
+		jMenuItemHelp.addActionListener(this);
+
+
+		// RULES
+		jMenuRules = new JMenu("Rules");
+		ButtonGroup buttonGroupRules = new ButtonGroup();
+
+		jMenuItemClassic = new JRadioButtonMenuItem(Rules.CLASSIC.getName());
+		jMenuItemClassic.addActionListener(this);
+		jMenuRules.add(jMenuItemClassic);
+		buttonGroupRules.add(jMenuItemClassic);
+		jMenuItemClassic.setSelected(true);
+
+		jMenuItemDayAndLight = new JRadioButtonMenuItem(Rules.DAY_AND_NIGHT.getName());
+		jMenuItemDayAndLight.addActionListener(this);
+		jMenuRules.add(jMenuItemDayAndLight);
+		buttonGroupRules.add(jMenuItemDayAndLight);
+
+		jMenuItemHighlife = new JRadioButtonMenuItem(Rules.HIGHLIFE.getName());
+		jMenuItemHighlife.addActionListener(this);
+		jMenuRules.add(jMenuItemHighlife);
+		buttonGroupRules.add(jMenuItemHighlife);
+
+		jMenuRules.add(new JSeparator());
+
+		jMenuItemMarnat = new JRadioButtonMenuItem(Rules.MARNAT.getName());
+		jMenuItemMarnat.addActionListener(this);
+		jMenuRules.add(jMenuItemMarnat);
+		buttonGroupRules.add(jMenuItemMarnat);
+
+		jMenuItemGrando = new JRadioButtonMenuItem(Rules.GRANDO.getName());
+		jMenuItemGrando.addActionListener(this);
+		jMenuRules.add(jMenuItemGrando);
+		buttonGroupRules.add(jMenuItemGrando);
+
 
 		jMenuItemStatistics = new JCheckBoxMenuItem("Statistics");
 		jMenuItemStatistics.addActionListener(this);
@@ -156,8 +192,9 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 
 //		jMenuGameOfLife.add(jMenuItemSave);
 //		jMenuGameOfLife.add(jMenuItemLoad);
-		jMenuGameOfLife.add(jMenuItemRules);
+		jMenuGameOfLife.add(jMenuItemHelp);
 //		jMenuGameOfLife.add(jMenuItemAbout);
+		jMenuGameOfLife.add(jMenuRules);
 		jMenuGameOfLife.add(jCheckBoxMenuItemShowColors);
 		jMenuGameOfLife.add(jMenuItemStatistics);
 		jMenuGameOfLife.add(jMenuExport);
@@ -166,20 +203,23 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		/* MENUS : ROTATIONS */
 		jMenuItemRotateRight = new JMenuItem("⤾ Rotate Right");
 		jMenuItemRotateRight.addActionListener(this);
+		jMenuTransformations.add(jMenuItemRotateRight);
 
 		jMenuItemRotateLeft = new JMenuItem("⤿ Rotate Left");
 		jMenuItemRotateLeft.addActionListener(this);
+		jMenuTransformations.add(jMenuItemRotateLeft);
+
+		jMenuTransformations.add(new JSeparator());
+
 
 		jMenuItemFlipHorizontal = new JMenuItem("⬌ Flip Horizontal");
 		jMenuItemFlipHorizontal.addActionListener(this);
+		jMenuTransformations.add(jMenuItemFlipHorizontal);
 
 		jMenuItemFlipVertical = new JMenuItem("⬍ Flip Vertical");
 		jMenuItemFlipVertical.addActionListener(this);
-
-		jMenuTransformations.add(jMenuItemRotateRight);
-		jMenuTransformations.add(jMenuItemRotateLeft);
-		jMenuTransformations.add(jMenuItemFlipHorizontal);
 		jMenuTransformations.add(jMenuItemFlipVertical);
+
 
 
 		jLabelNbAlive = new JLabel(TranslationHash.getTranslation("Population:") + " " + Integer.toString(GameGrid.nbAlive()) + " ");
@@ -230,7 +270,7 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 
 		} else if (s == jMenuItemAbout) {
 			// TODO about
-		} else if (s == jMenuItemRules) {
+		} else if (s == jMenuItemHelp) {
 			JFrame jFrameRules = new JFrame("Rules");
 			jFrameRules.setAlwaysOnTop(true);
 			jFrameRules.setResizable(false);
@@ -287,6 +327,21 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 				GameOfLife.gameGrid.exportGifEnd();
 				jMenuItemRecordingGif.setText("Start recording GIF...");
 			}
+		} else if (s == jMenuItemClassic) {
+			GameOfLife.gameGrid.changeRule(Rules.CLASSIC);
+			jMenuItemClassic.setSelected(true);
+		} else if (s == jMenuItemDayAndLight) {
+			GameOfLife.gameGrid.changeRule(Rules.DAY_AND_NIGHT);
+			jMenuItemDayAndLight.setSelected(true);
+		} else if (s == jMenuItemHighlife) {
+			GameOfLife.gameGrid.changeRule(Rules.HIGHLIFE);
+			jMenuItemHighlife.setSelected(true);
+		} else if (s == jMenuItemMarnat) {
+			GameOfLife.gameGrid.changeRule(Rules.MARNAT);
+			jMenuItemMarnat.setSelected(true);
+		} else if (s == jMenuItemGrando) {
+			GameOfLife.gameGrid.changeRule(Rules.GRANDO);
+			jMenuItemGrando.setSelected(true);
 		}
 
 		/* MENUS : PATTERNS */
@@ -318,4 +373,4 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 
 		GameOfLife.repaint();
 	}
-}
+	}

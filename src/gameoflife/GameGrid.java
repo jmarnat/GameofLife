@@ -1,27 +1,35 @@
 package gameoflife;
 
+import javax.imageio.*;
+import javax.imageio.metadata.IIOMetadata;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by Josselin MARNAT on 06/08/15.
  */
 public class GameGrid extends JPanel implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public static int DEAD = 0, ALIVE = 1;
-	public static int NOW = 0, THEN = 1;
+	public static boolean DEAD = false, ALIVE = true;
+	public static int OLD = 0, NEW = 1;
 	private static int width, height;
 	private static int step;
-	private static int[][][] stateGrids;
-	private static Pattern pattern = Patterns.livingCell;
+	private static boolean[][][] stateGrids;
+	private static Pattern pattern = Patterns.LIVINGCELL;
+	private static ArrayList<Integer> statistics;
+	private static int max;
+	private static int zoom; // pixels-size of a square
+	private static ImageWriter imageWriter;
+	private boolean recordingGif = false;
 	private int pi, pj;
-	private int zoom; // pixels-size of a square
 	private boolean showPhantom = true;
 
 	/**
@@ -33,12 +41,15 @@ public class GameGrid extends JPanel implements Serializable {
 	GameGrid(final int height, final int width, int originalZoom) {
 		GameGrid.width = width;
 		GameGrid.height = height;
-		this.zoom = originalZoom;
+		zoom = originalZoom;
 
-		stateGrids = new int[height][width][2];
+		stateGrids = new boolean[height][width][2];
+		statistics = new ArrayList<Integer>();
+		max = 0;
+
 		for (int i = 0; i < height; i++)
 			for (int j = 0; j < width; j++)
-				stateGrids[i][j][NOW] = DEAD;
+				stateGrids[i][j][OLD] = DEAD;
 		step = 0;
 
 
@@ -50,16 +61,16 @@ public class GameGrid extends JPanel implements Serializable {
 				pi = i;
 				pj = j;
 
-				if (pattern == Patterns.livingCell) {
-					stateGrids[pi][pj][NOW] = ALIVE;
-				} else if (pattern == Patterns.deadCell) {
-					stateGrids[pi][pj][NOW] = DEAD;
+				if (pattern == Patterns.LIVINGCELL) {
+					stateGrids[pi][pj][NEW] = ALIVE;
+				} else if (pattern == Patterns.DEADCELL) {
+					stateGrids[pi][pj][NEW] = DEAD;
 				} else {
 					int h = pattern.getHeight(), w = pattern.getWidth();
 					for (i = 0; i < h; i++)
 						for (j = 0; j < w; j++)
-							if (pattern.getCell(i, j) == 1)
-								stateGrids[pi + i][pj + j][NOW] = ALIVE;
+							if ((pattern.getCell(i, j) == 1) && ((pi + i) < height) && ((pj + j) < width))
+								stateGrids[pi + i][pj + j][NEW] = ALIVE;
 				}
 
 				GameMenuBar.majNbAlive();
@@ -74,7 +85,7 @@ public class GameGrid extends JPanel implements Serializable {
 					return;
 				}
 				if ((i != pi) || (j != pj)) {
-					// stateGrids[i][j][NOW] = pressed;
+					// stateGrids[i][j][OLD] = pressed;
 					pi = i;
 					pj = j;
 					// GameMenuBar.majNbAlive();
@@ -91,15 +102,17 @@ public class GameGrid extends JPanel implements Serializable {
 			public void mousePressed(MouseEvent e) {
 				int i = e.getY() / zoom, j = e.getX() / zoom;
 				if ((i < 0) || (j < 0) || (i >= height) || (j >= width)) return;
-				int h = pattern.getHeight(), w = pattern.getWidth();
-				pi = i;
-				pj = j;
-				for (i = 0; i < h; i++) {
-					for (j = 0; j < w; j++) {
-						if (pattern.getCell(i, j) == 1) {
-							stateGrids[pi + i][pj + j][NOW] = ALIVE;
-						}
-					}
+
+				if (pattern == Patterns.DEADCELL) {
+					stateGrids[pi][pj][NEW] = DEAD;
+				} else {
+					int h = pattern.getHeight(), w = pattern.getWidth();
+					pi = i;
+					pj = j;
+					for (i = 0; i < h; i++)
+						for (j = 0; j < w; j++)
+							if (pattern.getCell(i, j) == 1)
+								stateGrids[pi + i][pj + j][NEW] = ALIVE;
 				}
 
 				GameMenuBar.majNbAlive();
@@ -122,55 +135,35 @@ public class GameGrid extends JPanel implements Serializable {
 				repaint();
 			}
 		});
-
 		this.setPreferredSize(new Dimension(zoom * width, zoom * height));
 	}
 
-	static int stateNow(int x, int y) {
-		if ((x < 0) || (x >= height) || (y < 0) || (y >= width)) return 0;
-		else return stateGrids[x][y][NOW];
+	static boolean stateOld(int x, int y) {
+		if ((x < 0) || (x >= height) || (y < 0) || (y >= width)) return false;
+		else return stateGrids[x][y][OLD];
 	}
 
+	static boolean stateNew(int x, int y) {
+		if ((x < 0) || (x >= height) || (y < 0) || (y >= width)) return false;
+		else return stateGrids[x][y][NEW];
+	}
 
 	private static int nbAlive(int x, int y) {
 		int n = 0;
 		for (int i = -1; i <= 1; i++)
 			for (int j = -1; j <= 1; j++)
 				if (!((i == 0) && (j == 0)))
-					n += ((stateNow(x + i, y + j) == ALIVE) ? 1 : 0);
+					n += ((stateOld(x + i, y + j)) ? 1 : 0);
 		return n;
 	}
-
-	public static void next() {
-		int n;
-		int s;
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				n = nbAlive(i, j);
-				s = stateNow(i, j);
-				if (s == ALIVE) {
-					if ((n == 2) || (n == 3)) stateGrids[i][j][THEN] = ALIVE;
-					else stateGrids[i][j][THEN] = DEAD;
-				} else { /* if it's DEAD... */
-					if (n == 3) stateGrids[i][j][THEN] = ALIVE; /* reborn */
-					else stateGrids[i][j][THEN] = DEAD; /* keep DEAD */
-				}
-			}
-		}
-		for (int i = 0; i < height; i++)
-			for (int j = 0; j < width; j++)
-				stateGrids[i][j][NOW] = stateGrids[i][j][THEN];
-		step++;
-		GameMenuBar.majNbAlive();
-		GameMenuBar.majStep();
-	}
-
 
 	public static void clear() {
 		for (int i = 0; i < height; i++)
 			for (int j = 0; j < width; j++)
-				stateGrids[i][j][NOW] = DEAD;
+				stateGrids[i][j][OLD] = stateGrids[i][j][NEW] = DEAD;
 		GameGrid.step = 0;
+		GameGrid.statistics = new ArrayList<Integer>();
+		GameGrid.max = 0;
 		GameMenuBar.majNbAlive();
 		GameMenuBar.majStep();
 	}
@@ -182,8 +175,8 @@ public class GameGrid extends JPanel implements Serializable {
 			do {
 				i = (int) (Math.random() * height);
 				j = (int) (Math.random() * width);
-			} while (stateGrids[i][j][NOW] == ALIVE);
-			stateGrids[i][j][NOW] = ALIVE;
+			} while (stateGrids[i][j][OLD] == ALIVE);
+			stateGrids[i][j][NEW] = ALIVE;
 		}
 		GameMenuBar.majNbAlive();
 	}
@@ -192,7 +185,7 @@ public class GameGrid extends JPanel implements Serializable {
 		int nb = 0;
 		for (int i = 0; i < height; i++)
 			for (int j = 0; j < width; j++)
-				if (stateGrids[i][j][NOW] == ALIVE) nb++;
+				if (stateGrids[i][j][NEW] == ALIVE) nb++;
 		return (nb);
 	}
 
@@ -202,6 +195,7 @@ public class GameGrid extends JPanel implements Serializable {
 
 	public static void changePattern(Pattern p) {
 		pattern = p;
+		GameButtonsBar.updatePatternName();
 	}
 
 	public static void transformPattern(int transformation) {
@@ -209,47 +203,151 @@ public class GameGrid extends JPanel implements Serializable {
 		else if (transformation == Pattern.FLIP_VERTICAL) pattern.flipVertical();
 		else if (transformation == Pattern.ROTATE_LEFT) pattern.rotateLeft();
 		else if (transformation == Pattern.ROTATE_RIGHT) pattern.rotateRight();
-		Main.repaint();
+		GameOfLife.repaint();
 	}
 
-	public static GameGrid open(String fileName) {
-		GameGrid gameGrid = null;
-		// TODO ajouter selection de fichier, et check
-		try {
-			FileInputStream fileInputStream = new FileInputStream(fileName);
-			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-			gameGrid = (GameGrid) objectInputStream.readObject();
-			objectInputStream.close();
-			System.err.println("game restored with success");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return (gameGrid);
+	public static String getPatternName() {
+		return pattern.getName();
 	}
 
+	public static ArrayList<Integer> getStatistics() {
+		return statistics;
+	}
 
+	public static int getMax() {
+		return max;
+	}
 
-	public void paintComponent(Graphics g) {
-		g.setColor(Color.white);
+	public void next() {
+		int nbAlive = nbAlive();
+		statistics.add(nbAlive);
+		if (nbAlive > max) max = nbAlive;
+
+		for (int i = 0; i < height; i++)
+			for (int j = 0; j < width; j++)
+				stateGrids[i][j][OLD] = stateGrids[i][j][NEW];
+
+		int n;
+		boolean s;
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				if (stateNow(i, j) == ALIVE) g.setColor(Color.white);
-				else g.setColor(Color.black);
-				g.fillRect(j * zoom, i * zoom, zoom, zoom);
+				n = nbAlive(i, j);
+				s = stateOld(i, j);
+				if (s == ALIVE) {
+					if (GameOfLife.rule.getS(n - 1)) stateGrids[i][j][NEW] = ALIVE;
+					else stateGrids[i][j][NEW] = DEAD;
+				} else { /* if it's DEAD... */
+					if (GameOfLife.rule.getB(n - 1)) stateGrids[i][j][NEW] = ALIVE; /* reborn */
+					else stateGrids[i][j][NEW] = DEAD; /* keep DEAD */
+				}
 			}
 		}
+
+		step++;
+		GameMenuBar.majNbAlive();
+		GameMenuBar.majStep();
+
+		GameOfLife.updateStatistics();
+
+
+		// export gif
+		if (recordingGif) {
+			BufferedImage bufferedImage = new BufferedImage(width * zoom, height * zoom, BufferedImage.TYPE_INT_RGB);
+			showPhantom = false;
+			paintComponent(bufferedImage.createGraphics());
+			try {
+				imageWriter.writeToSequence(new IIOImage(bufferedImage, null, null), imageWriter.getDefaultWriteParam());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void paintComponent(Graphics g) {
+		if (GameOfLife.showColors) {
+			boolean s0, s1;
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					s0 = stateOld(i, j);
+					s1 = stateNew(i, j);
+					if (s0 && s1) g.setColor(GameOfLife.colorAlive);
+					else if (!s0 && s1) g.setColor(GameOfLife.colorBorning);
+					else if (s0 && !s1) g.setColor(GameOfLife.colorDying);
+					else g.setColor(Color.black);
+					g.fillRect(j * zoom, i * zoom, zoom, zoom);
+				}
+			}
+		} else {
+			g.setColor(Color.white);
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					if (stateNew(i, j) == ALIVE) g.setColor(GameOfLife.colorWhite);
+					else g.setColor(Color.black);
+					g.fillRect(j * zoom, i * zoom, zoom, zoom);
+				}
+			}
+		}
+
+		// PHANTOM
 		if (!showPhantom) return;
 		g.setColor(Color.gray);
 		int h = pattern.getHeight(), w = pattern.getWidth();
 
 		for (int i = 0; i < h; i++)
 			for (int j = 0; j < w; j++)
-				if ((pattern.getCell(i, j) == 1) && (stateNow(pi + i, pj + j) != ALIVE))
+				if ((pattern.getCell(i, j) == 1) && (stateNew(pi + i, pj + j) != ALIVE))
 					g.fillRect((pj + j) * zoom, (pi + i) * zoom, zoom, zoom);
 	}
 
 	@Override
 	public String toString() {
 		return ("alive : " + nbAlive());
+	}
+
+	public void exportJPG(File outputFile) {
+		System.err.println("export...");
+		BufferedImage bufferedImage = new BufferedImage(width * zoom, height * zoom, BufferedImage.TYPE_INT_RGB);
+		showPhantom = false;
+		paintComponent(bufferedImage.createGraphics());
+
+//		File outputFile = new File(file);
+		try {
+			ImageIO.write(bufferedImage, "jpg", outputFile);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		System.err.println("done?");
+	}
+
+
+	public void exportGifStart(File file) {
+		recordingGif = true;
+		try {
+			// creating buffered image
+			BufferedImage bufferedImage = new BufferedImage(width * zoom, height * zoom, BufferedImage.TYPE_INT_RGB);
+			showPhantom = false;
+			paintComponent(bufferedImage.getGraphics());
+
+			// setting output
+			ImageTypeSpecifier imageTypeSpecifier = new ImageTypeSpecifier(bufferedImage);
+			imageWriter = ImageIO.getImageWriters(imageTypeSpecifier, "GIF").next();
+			imageWriter.setOutput(ImageIO.createImageOutputStream(file));
+			ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
+			IIOMetadata iioMetadata = imageWriter.getDefaultImageMetadata(imageTypeSpecifier, imageWriteParam);
+			imageWriter.prepareWriteSequence(iioMetadata);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void exportGifEnd() {
+		recordingGif = false;
+		imageWriter.dispose();
+	}
+
+	public boolean isRecordingGif() {
+		return this.recordingGif;
 	}
 }

@@ -6,8 +6,10 @@ package gameoflife;
 public class Pattern {
 	public final static int ROTATE_RIGHT = 0, ROTATE_LEFT = 1, FLIP_HORIZONTAL = 2, FLIP_VERTICAL = 3;
 	private int[][] patternGrid;
+	private String name;
 
-	public Pattern(int patternGrid[][]) {
+	public Pattern(String name, int patternGrid[][]) {
+		this.name = name;
 		this.patternGrid = patternGrid;
 	}
 
@@ -70,5 +72,9 @@ public class Pattern {
 			}
 			System.err.println();
 		}
+	}
+
+	public String getName() {
+		return this.name;
 	}
 }

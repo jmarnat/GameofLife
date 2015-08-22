@@ -17,7 +17,7 @@ public class TranslationHash {
 		addTranslation("Next", "Suivant");
 		addTranslation("Reset","Recommencer");
 		addTranslation("Baby Boom");
-		addTranslation("Cells alive:", "Cellules en vie :");
+		addTranslation("Population:", "Population :"); // todo le reste
 		addTranslation("Generation:", "Génération :");
 		addTranslation("Game of Life", "Le Jeu de la Vie");
 	}

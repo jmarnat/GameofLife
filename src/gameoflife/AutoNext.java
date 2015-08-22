@@ -15,8 +15,8 @@ public class AutoNext extends Thread {
 	@Override
 	public void run() {
 		while (true) {
-			GameGrid.next();
-			Main.repaint();
+			GameOfLife.gameGrid.next();
+			GameOfLife.repaint();
 
 			try {
 				sleep(milis);

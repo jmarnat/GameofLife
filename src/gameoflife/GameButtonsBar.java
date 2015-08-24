@@ -14,13 +14,13 @@ public class GameButtonsBar extends JPanel implements ActionListener, ChangeList
 
 	private static JButton jButtonNext, jButtonAutoNext, jButtonReset, jButtonBabyBoom;
 	private static JSlider sliderRapidity;
-	private static JLabel jLabelPattern;
+	private static JLabel jLabelPattern, jLabelRule;
 	private AutoNext autoNext;
 	private boolean autoNextState = false;
 
 	public GameButtonsBar(final int height, final int width, int originalZoom) {
 		this.setPreferredSize(new Dimension(originalZoom * width, 60));
-		this.setLayout(new GridLayout(1, 5));
+		this.setLayout(new GridLayout(1, 7));
 
 		/* "PLAY" BUTTONS*/
 		jButtonNext = new JButton(TranslationHash.getTranslation("►I"));
@@ -53,7 +53,10 @@ public class GameButtonsBar extends JPanel implements ActionListener, ChangeList
 		sliderRapidity.addChangeListener(this);
 
 		jLabelPattern = new JLabel(GameGrid.getPatternName());
-		jLabelPattern.setHorizontalAlignment(SwingConstants.CENTER);
+//		jLabelPattern.setHorizontalAlignment(SwingConstants.EAST);
+
+		jLabelRule = new JLabel(GameOfLife.gameGrid.getRuleName());
+//		jLabelRule.setHorizontalAlignment(SwingConstants.WEST);
 
 		this.add(sliderRapidity);
 
@@ -63,6 +66,7 @@ public class GameButtonsBar extends JPanel implements ActionListener, ChangeList
 		this.add(jButtonBabyBoom);
 
 		this.add(jLabelPattern);
+		this.add(jLabelRule);
 	}
 
 	public static void updatePatternName() {

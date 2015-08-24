@@ -178,8 +178,23 @@ public class Patterns {
 					{0, 0, 1, 0, 0, 0, 0, 0, 0, 0}
 			}
 	);
-	public static final Pattern GOSPERS_GLIDER_GUN = new Pattern("Gospers glider gun (30)",
-			new int[][]{ // puffer ??
+
+	public static final Pattern PLUS = new Pattern("Plus",
+			new int[][]{
+					{0, 1, 0},
+					{1, 1, 1},
+					{0, 1, 0}
+			}
+	);
+	public static final Pattern PENTAMINO_R = new Pattern("Pentomino R",
+			new int[][]{
+					{0, 1, 0},
+					{0, 1, 1},
+					{1, 1, 0}
+			}
+	);
+	public static final Pattern GOSPERS_GLIDER_GUN = new Pattern("Gosper's glider gun (30)",
+			new int[][]{
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},

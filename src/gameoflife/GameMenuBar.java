@@ -15,20 +15,22 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 	private static JMenu jMenuGameOfLife, jMenuPatterns, jMenuTransformations;
 	private static JMenu jMenuExport;
 	private static JMenuItem jMenuItemToJpg, jMenuItemRecordingGif;
-	private static JMenuItem jMenuItemQuit, jMenuItemAbout, jMenuItemHelp;
+	private static JMenuItem jMenuItemQuit, jMenuItemAbout, jMenuItemHelp, jMenuItemTheoretical;
 	private static JMenu jMenuRules;
-	private static JRadioButtonMenuItem jMenuItemClassic, jMenuItemDayAndLight, jMenuItemHighlife, jMenuItemMarnat, jMenuItemGrando;
-	private static JMenu jMenuStillLifes, jMenuOscillators, jMenuSpaceships;
+	private static JCheckBox[] jCheckBoxesBorn, jCheckBoxesStay;
+	//	private static JPanel jPanelMyRules;
+	private static JRadioButtonMenuItem jMenuItemClassic, jMenuItemDayAndLight, jMenuItemHighlife, jMenuItemMarnat, jMenuItemGrando, jMenuItemMyRule;
+	private static JMenu jMenuStillLifes, jMenuOscillators, jMenuSpaceships, jMenuOthers;
 	private static JMenuItem jMenuItemRotateRight, jMenuItemRotateLeft, jMenuItemFlipHorizontal, jMenuItemFlipVertical;
 	private static JCheckBoxMenuItem jMenuItemStatistics, jCheckBoxMenuItemShowColors;
 	private static JRadioButtonMenuItem jMenuItemLiveCell, jMenuItemDeadCell;
 	private static JRadioButtonMenuItem jRadioButtonMenuItemBlock, jRadioButtonMenuItemBeehive, jRadioButtonMenuItemLoaf, jRadioButtonMenuItemBoat;
 	private static JRadioButtonMenuItem jRadioButtonMenuItemBlinker, jRadioButtonMenuItemToad, jRadioButtonMenuItemBeacon, jRadioButtonMenuItemPulsar, jRadioButtonMenuItemClock, jRadioButtonMenuItemPentadecathlon, jRadioButtonMenuItemKoksGalaxy;
 	private static JRadioButtonMenuItem jRadioButtonMenuItemGlider, jRadioButtonMenuItemLWSS, jRadioButtonMenuItemBSS1, jRadioButtonMenuItemBSS2;
-	private static JRadioButtonMenuItem jRadioButtonMenuItemPuffer;
+	private static JRadioButtonMenuItem jRadioButtonMenuItemPlus, jRadioButtonMenuItemPentominoR, jRadioButtonMenuItemPuffer;
 
 
-	public GameMenuBar(int height, int width, int zoom) {
+	public GameMenuBar(int width, int zoom) {
 		this.setPreferredSize(new Dimension(zoom * width, 40));
 
 		jMenuGameOfLife = new JMenu("Game of Life");
@@ -50,7 +52,7 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jMenuRules = new JMenu("Rules");
 		ButtonGroup buttonGroupRules = new ButtonGroup();
 
-		jMenuItemClassic = new JRadioButtonMenuItem(Rules.CLASSIC.getName());
+		jMenuItemClassic = new JRadioButtonMenuItem(Rules.CONWAY.getName());
 		jMenuItemClassic.addActionListener(this);
 		jMenuRules.add(jMenuItemClassic);
 		buttonGroupRules.add(jMenuItemClassic);
@@ -78,6 +80,26 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jMenuRules.add(jMenuItemGrando);
 		buttonGroupRules.add(jMenuItemGrando);
 
+		jMenuRules.add(new JSeparator());
+
+		jMenuItemMyRule = new JRadioButtonMenuItem("My rule...");
+		jMenuItemMyRule.addActionListener(this);
+		buttonGroupRules.add(jMenuItemMyRule);
+		jMenuRules.add(jMenuItemMyRule);
+
+		/*jPanelMyRules = new JPanel();
+		jPanelMyRules.setPreferredSize(new Dimension(200,60));
+		jPanelMyRules.setLayout(new GridLayout(2,9));
+		jPanelMyRules.add(new JLabel("Born:"));
+		for (int i = 0; i < 8; i++) jPanelMyRules.add(new JCheckBox());
+		jPanelMyRules.add(new JLabel("Stay Alive:"));
+		for (int i = 0; i < 8; i++) jPanelMyRules.add(new JCheckBox());
+		jMenuRules.add(jPanelMyRules);*/
+
+		jMenuItemTheoretical = new JCheckBoxMenuItem("Theoritical mode");
+		jMenuItemTheoretical.addActionListener(this);
+		jMenuItemTheoretical.setSelected(true);
+
 
 		jMenuItemStatistics = new JCheckBoxMenuItem("Statistics");
 		jMenuItemStatistics.addActionListener(this);
@@ -100,6 +122,7 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jMenuStillLifes = new JMenu("Still Lifes");
 		jMenuOscillators = new JMenu("Oscillators");
 		jMenuSpaceships = new JMenu("Spaceships");
+		jMenuOthers = new JMenu("Others"); // other or others ?
 
 		jMenuItemLiveCell = new JRadioButtonMenuItem("Live Cell");
 		jMenuItemLiveCell.setSelected(true);
@@ -140,7 +163,13 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jRadioButtonMenuItemBSS2 = new JRadioButtonMenuItem("Big Spaceship 2 (7)");
 		jRadioButtonMenuItemBSS2.addActionListener(this);
 
-		jRadioButtonMenuItemPuffer = new JRadioButtonMenuItem("Gospers glider gun (30)");
+		jRadioButtonMenuItemPlus = new JRadioButtonMenuItem("Plus");
+		jRadioButtonMenuItemPlus.addActionListener(this);
+
+		jRadioButtonMenuItemPentominoR = new JRadioButtonMenuItem("Pentomino R");
+		jRadioButtonMenuItemPentominoR.addActionListener(this);
+
+		jRadioButtonMenuItemPuffer = new JRadioButtonMenuItem("Gosper's glider gun");
 		jRadioButtonMenuItemPuffer.addActionListener(this);
 
 		jMenuStillLifes.add(jRadioButtonMenuItemBlock);
@@ -161,13 +190,17 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		jMenuSpaceships.add(jRadioButtonMenuItemBSS1);
 		jMenuSpaceships.add(jRadioButtonMenuItemBSS2);
 
+		jMenuOthers.add(jRadioButtonMenuItemPlus);
+		jMenuOthers.add(jRadioButtonMenuItemPentominoR);
+		jMenuOthers.add(jRadioButtonMenuItemPuffer);
+
 		jMenuPatterns.add(jMenuItemLiveCell);
 		jMenuPatterns.add(jMenuItemDeadCell);
 		jMenuPatterns.add(jMenuStillLifes);
 		jMenuPatterns.add(jMenuOscillators);
 		jMenuPatterns.add(jMenuSpaceships);
+		jMenuPatterns.add(jMenuOthers);
 
-		jMenuPatterns.add(jRadioButtonMenuItemPuffer);
 
 		// for the checkboxes
 		ButtonGroup buttonGroupPatterns = new ButtonGroup();
@@ -189,15 +222,20 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		buttonGroupPatterns.add(jRadioButtonMenuItemBSS1);
 		buttonGroupPatterns.add(jRadioButtonMenuItemBSS2);
 		buttonGroupPatterns.add(jRadioButtonMenuItemPuffer);
+		buttonGroupPatterns.add(jRadioButtonMenuItemPlus);
+		buttonGroupPatterns.add(jRadioButtonMenuItemPentominoR);
 
 //		jMenuGameOfLife.add(jMenuItemSave);
 //		jMenuGameOfLife.add(jMenuItemLoad);
 		jMenuGameOfLife.add(jMenuItemHelp);
 //		jMenuGameOfLife.add(jMenuItemAbout);
+		jMenuGameOfLife.add(new JSeparator());
 		jMenuGameOfLife.add(jMenuRules);
+		jMenuGameOfLife.add(jMenuItemTheoretical);
 		jMenuGameOfLife.add(jCheckBoxMenuItemShowColors);
 		jMenuGameOfLife.add(jMenuItemStatistics);
 		jMenuGameOfLife.add(jMenuExport);
+		jMenuGameOfLife.add(new JSeparator());
 		jMenuGameOfLife.add(jMenuItemQuit);
 
 		/* MENUS : ROTATIONS */
@@ -289,6 +327,9 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 			jFrameRules.pack();
 			jFrameRules.setLocationRelativeTo(jFrameRules.getParent());
 			jFrameRules.setVisible(true);
+		} else if (s == jMenuItemTheoretical) {
+			GameOfLife.gameGrid.setTheoricMode(!GameOfLife.gameGrid.isTheoricMode());
+			jMenuItemTheoretical.setSelected(GameOfLife.gameGrid.isTheoricMode());
 		} else if (s == jCheckBoxMenuItemShowColors) {
 			GameOfLife.setShowColors(jCheckBoxMenuItemShowColors.isSelected());
 			jCheckBoxMenuItemShowColors.setState(jCheckBoxMenuItemShowColors.isSelected());
@@ -328,7 +369,7 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 				jMenuItemRecordingGif.setText("Start recording GIF...");
 			}
 		} else if (s == jMenuItemClassic) {
-			GameOfLife.gameGrid.changeRule(Rules.CLASSIC);
+			GameOfLife.gameGrid.changeRule(Rules.CONWAY);
 			jMenuItemClassic.setSelected(true);
 		} else if (s == jMenuItemDayAndLight) {
 			GameOfLife.gameGrid.changeRule(Rules.DAY_AND_NIGHT);
@@ -342,6 +383,55 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		} else if (s == jMenuItemGrando) {
 			GameOfLife.gameGrid.changeRule(Rules.GRANDO);
 			jMenuItemGrando.setSelected(true);
+		} else if (s == jMenuItemMyRule) {
+			if (jCheckBoxesBorn == null) {
+				jCheckBoxesBorn = new JCheckBox[8];
+				jCheckBoxesStay = new JCheckBox[8];
+				for (int i = 0; i < 8; i++) {
+					jCheckBoxesBorn[i] = new JCheckBox();
+					jCheckBoxesStay[i] = new JCheckBox();
+				}
+			}
+
+
+			JPanel jPanelMyRule = new JPanel();
+			jPanelMyRule.setPreferredSize(new Dimension(300, 60));
+			jPanelMyRule.setLayout(new GridLayout(3, 9));
+
+			jPanelMyRule.add(new JLabel("n"));
+			for (int i = 0; i < 8; i++) jPanelMyRule.add(new JLabel("  " + (i + 1)));
+
+			jPanelMyRule.add(new JLabel("born"));
+			for (int i = 0; i < 8; i++) jPanelMyRule.add(jCheckBoxesBorn[i]);
+
+			jPanelMyRule.add(new JLabel("stay"));
+			for (int i = 0; i < 8; i++) jPanelMyRule.add(jCheckBoxesStay[i]);
+
+			Object[] params = {jPanelMyRule};
+//			JOptionPane jOptionPane = new JOptionPane();
+			JOptionPane.showConfirmDialog(
+					GameOfLife.gameWindow,
+					params,
+					"My rules...",
+					JOptionPane.OK_CANCEL_OPTION
+			);
+
+			boolean[] checkBorn = new boolean[8];
+			boolean[] checkStay = new boolean[8];
+			String def = " (B";
+			for (int i = 0; i < 8; i++) {
+				checkBorn[i] = jCheckBoxesBorn[i].isSelected();
+				if (checkBorn[i]) def += (i + 1);
+			}
+			def += "/S";
+			for (int i = 0; i < 8; i++) {
+				checkStay[i] = jCheckBoxesStay[i].isSelected();
+				if (checkStay[i]) def += (i + 1);
+			}
+			def += ")";
+
+			GameOfLife.gameGrid.changeRule(new Rule("My rule" + def, checkBorn, checkStay));
+
 		}
 
 		/* MENUS : PATTERNS */
@@ -362,7 +452,8 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 		else if (s == jRadioButtonMenuItemLWSS) GameGrid.changePattern(Patterns.LWSS);
 		else if (s == jRadioButtonMenuItemBSS1) GameGrid.changePattern(Patterns.BSS1);
 		else if (s == jRadioButtonMenuItemBSS2) GameGrid.changePattern(Patterns.BSS2);
-		else if (s == jRadioButtonMenuItemClock) GameGrid.changePattern(Patterns.CLOCK);
+		else if (s == jRadioButtonMenuItemPlus) GameGrid.changePattern(Patterns.PLUS);
+		else if (s == jRadioButtonMenuItemPentominoR) GameGrid.changePattern(Patterns.PENTAMINO_R);
 		else if (s == jRadioButtonMenuItemPuffer) GameGrid.changePattern(Patterns.GOSPERS_GLIDER_GUN);
 
 		/* MENUS : TRANSFORMATIONS */
@@ -373,4 +464,4 @@ public class GameMenuBar extends JMenuBar implements ActionListener {
 
 		GameOfLife.repaint();
 	}
-	}
+}

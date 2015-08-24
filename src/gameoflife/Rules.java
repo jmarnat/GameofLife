@@ -4,7 +4,7 @@ package gameoflife;
  * Created by Josselin MARNAT on 22/08/15.
  */
 public class Rules {
-	public static final Rule CLASSIC = new Rule("Classic (B3/S23)",
+	public static final Rule CONWAY = new Rule("Conway (B3/S23)",
 			new boolean[]{false, false, true, false, false, false, false, false},
 			new boolean[]{false, true, true, false, false, false, false, false}
 	);

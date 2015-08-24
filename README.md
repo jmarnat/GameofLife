@@ -9,6 +9,7 @@ This program is written in Java, and totally open-source.
 
 ## Features
 * a classic squared-grid of live/dead cells;
+* finite / looping (torus) grid selection;
 * many well-known patterns available in one click including :
 	* live/dead cell;
 	* still lives;
@@ -24,13 +25,15 @@ This program is written in Java, and totally open-source.
 * statistics viewer of population alive over time;
 
 ## TODO-list
-* theoretical mode activation
-* rule personalization
+* show labels "Rule:" & "Pattern:"
+* export statistics
 * complete the french translation;
+* add logo on joptionpanes
+* eco-mode
+* resize window
 * add an setting-window to change :
 	* colors;
 	* cell-size;
 	* rows & cols;
 	* language switch;
-	* show-grid
 	* etc.

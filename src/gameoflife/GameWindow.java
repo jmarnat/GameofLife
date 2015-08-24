@@ -14,7 +14,7 @@ public class GameWindow extends JFrame {
 
 		this.setTitle(TranslationHash.getTranslation("Game of Life"));
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		this.setJMenuBar(new GameMenuBar(height, width, zoom));
+		this.setJMenuBar(new GameMenuBar(width, zoom));
 
 		this.add(GameOfLife.gameGrid, BorderLayout.NORTH);
 		this.add(new GameButtonsBar(height, width, zoom), BorderLayout.SOUTH);

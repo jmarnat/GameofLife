@@ -6,8 +6,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 public class GameOfLife {
-	//	public static int WIDTH = 60, HEIGHT = 40, PIX_SIZE = 15;
-	public static int WIDTH = 180, HEIGHT = 120, PIX_SIZE = 5;
+	public static int WIDTH = 60, HEIGHT = 40, PIX_SIZE = 15;
+//	public static int WIDTH = 180, HEIGHT = 120, PIX_SIZE = 5;
 //	public static int WIDTH = 60*15*2, HEIGHT = 40*15*2, PIX_SIZE = 1;
 
 	public static GameGrid gameGrid;
@@ -20,7 +20,7 @@ public class GameOfLife {
 			colorAlive = new Color(200, 180, 160),
 			colorDying = new Color(100, 0, 70),
 			colorBorning = new Color(20, 160, 250);
-	public static Color colorWhite = Color.WHITE;
+	public static Color colorWhite = colorAlive;
 
 	public static void main(String[] args) {
 		new TranslationHash(TranslationHash.EN);

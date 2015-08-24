@@ -32,7 +32,7 @@ public class GameGrid extends JPanel implements Serializable {
 	private int pi, pj;
 	private boolean showPhantom = true;
 	private boolean theoricMode = true;
-	private Rule rule = Rules.CLASSIC;
+	private Rule rule = Rules.CONWAY;
 
 	/**
 	 * Constructor of the "physical" game grid.
@@ -69,10 +69,16 @@ public class GameGrid extends JPanel implements Serializable {
 					stateGrids[pi][pj][NEW] = DEAD;
 				} else {
 					int h = pattern.getHeight(), w = pattern.getWidth();
-					for (i = 0; i < h; i++)
-						for (j = 0; j < w; j++)
-							if ((pattern.getCell(i, j) == 1) && ((pi + i) < height) && ((pj + j) < width))
-								stateGrids[pi + i][pj + j][NEW] = ALIVE;
+					for (i = 0; i < h; i++) {
+						for (j = 0; j < w; j++) {
+							if (pattern.getCell(i, j) == 1) {
+								if (theoricMode)
+									stateGrids[(pi + i + height) % height][(pj + j + width) % width][NEW] = ALIVE;
+								else if (((pi + i) < height) && ((pj + j) < width))
+									stateGrids[pi + i][pj + j][NEW] = ALIVE;
+							}
+						}
+					}
 				}
 
 				GameMenuBar.majNbAlive();
@@ -87,10 +93,8 @@ public class GameGrid extends JPanel implements Serializable {
 					return;
 				}
 				if ((i != pi) || (j != pj)) {
-					// stateGrids[i][j][OLD] = pressed;
 					pi = i;
 					pj = j;
-					// GameMenuBar.majNbAlive();
 					repaint();
 				}
 			}
@@ -111,10 +115,16 @@ public class GameGrid extends JPanel implements Serializable {
 					int h = pattern.getHeight(), w = pattern.getWidth();
 					pi = i;
 					pj = j;
-					for (i = 0; i < h; i++)
-						for (j = 0; j < w; j++)
-							if (pattern.getCell(i, j) == 1)
-								stateGrids[pi + i][pj + j][NEW] = ALIVE;
+					for (i = 0; i < h; i++) {
+						for (j = 0; j < w; j++) {
+							if (pattern.getCell(i, j) == 1) {
+								if (theoricMode)
+									stateGrids[(pi + i + height) % height][(pj + j + width) % width][NEW] = ALIVE;
+								else if (((pi + i) < height) && ((pj + j) < width))
+									stateGrids[pi + i][pj + j][NEW] = ALIVE;
+							}
+						}
+					}
 				}
 
 				GameMenuBar.majNbAlive();
@@ -141,8 +151,7 @@ public class GameGrid extends JPanel implements Serializable {
 	}
 
 	static boolean stateNew(int x, int y) {
-		if ((x < 0) || (x >= height) || (y < 0) || (y >= width)) return false;
-		else return stateGrids[x][y][NEW];
+		return stateGrids[x][y][NEW];
 	}
 
 	public static void clear() {
@@ -315,10 +324,16 @@ public class GameGrid extends JPanel implements Serializable {
 		g.setColor(Color.gray);
 		int h = pattern.getHeight(), w = pattern.getWidth();
 
-		for (int i = 0; i < h; i++)
-			for (int j = 0; j < w; j++)
-				if ((pattern.getCell(i, j) == 1) && (stateNew(pi + i, pj + j) != ALIVE))
-					g.fillRect((pj + j) * zoom, (pi + i) * zoom, zoom, zoom);
+		for (int i = 0; i < h; i++) {
+			for (int j = 0; j < w; j++) {
+				if (pattern.getCell(i, j) == 1) {
+					if (theoricMode && (stateNew((pi + i) % height, (pj + j) % width) != ALIVE))
+						g.fillRect(((pj + j) % width) * zoom, ((pi + i) % height) * zoom, zoom, zoom);
+					else if (((pi + i) < height) && ((pj + j) < width) && (stateNew(pi + i, pj + j) != ALIVE))
+						g.fillRect((pj + j) * zoom, (pi + i) * zoom, zoom, zoom);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -332,7 +347,6 @@ public class GameGrid extends JPanel implements Serializable {
 		showPhantom = false;
 		paintComponent(bufferedImage.createGraphics());
 
-//		File outputFile = new File(file);
 		try {
 			ImageIO.write(bufferedImage, "jpg", outputFile);
 		} catch (IOException e1) {
@@ -358,7 +372,6 @@ public class GameGrid extends JPanel implements Serializable {
 			ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
 			IIOMetadata iioMetadata = imageWriter.getDefaultImageMetadata(imageTypeSpecifier, imageWriteParam);
 			imageWriter.prepareWriteSequence(iioMetadata);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -375,6 +388,17 @@ public class GameGrid extends JPanel implements Serializable {
 
 	public void changeRule(Rule rule) {
 		this.rule = rule;
-		System.err.println("Rule -> " + rule.getName());
+	}
+
+	public boolean isTheoricMode() {
+		return this.theoricMode;
+	}
+
+	public void setTheoricMode(boolean b) {
+		this.theoricMode = b;
+	}
+
+	public String getRuleName() {
+		return this.rule.getName();
 	}
 }

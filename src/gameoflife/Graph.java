@@ -41,9 +41,9 @@ public class Graph extends JPanel implements MouseMotionListener {
 				if (a > 0) {
 					v0 = statistics.get(a - 1);
 					if (GameOfLife.showColors) {
-						if (v1 > v0) g.setColor(GameOfLife.colorBorning);
-						else if (v1 < v0) g.setColor(GameOfLife.colorDying);
-						else g.setColor(GameOfLife.colorAlive);
+						if (v1 > v0) g.setColor(new Color(00, 50, 250));
+						else if (v1 < v0) g.setColor(new Color(170, 0, 10));
+						else g.setColor(new Color(200, 180, 160));
 					} else g.setColor(GameOfLife.colorWhite);
 				}
 				v = 200 - ((v1 * 200) / ((max == 0) ? 1 : max));
